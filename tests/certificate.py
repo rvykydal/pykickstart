@@ -83,7 +83,49 @@ class Simple_Header_TestCase(ParserTest):
         cert = self.handler.certificates[0]
         self.assertEqual(cert.filename, "custom_certificate.pem")
         self.assertEqual(cert.dir, "/etc/pki/ca-trust/source/anchors/")
+        self.assertEqual(cert.category, None)
         self.assertEqual(cert.cert, CERT_CONTENT)
+
+
+class Simple_Category_TestCase(ParserTest):
+    def __init__(self, *args, **kwargs):
+        ParserTest.__init__(self, *args, **kwargs)
+        self.ks = f"""
+%certificate --filename=custom_certificate.pem --category=global
+{CERT_CONTENT}
+%end
+"""
+
+    def runTest(self):
+        self.parser.readKickstartFromString(self.ks)
+        self.assertEqual(len(self.handler.certificates), 1)
+
+        # Verify the certificate defaults.
+        cert = self.handler.certificates[0]
+        self.assertEqual(cert.filename, "custom_certificate.pem")
+        self.assertEqual(cert.dir, None)
+        self.assertEqual(cert.category, "global")
+        self.assertEqual(cert.cert, CERT_CONTENT)
+
+
+class Path_And_Category_TestCase(ParserTest):
+    def __init__(self, *args, **kwargs):
+        ParserTest.__init__(self, *args, **kwargs)
+        self.ks = f"""
+%certificate --filename=custom_certificate.pem --dir=/some/dir --category=edns
+{CERT_CONTENT}
+%end
+"""
+
+    def runTest(self):
+        self.parser.readKickstartFromString(self.ks)
+
+        cert = self.handler.certificates[0]
+        self.assertEqual(cert.filename, "custom_certificate.pem")
+        self.assertEqual(cert.dir, "/some/dir")
+        self.assertEqual(cert.category, "edns")
+        self.assertEqual(cert.cert, CERT_CONTENT)
+
 
 class Multiple_Terminated_TestCase(ParserTest):
     def __init__(self, *args, **kwargs):

@@ -187,11 +187,13 @@ class Certificate(KickstartObject):
            :keyword cert: The certificate to be used.
            :keyword filename: The file name of the certificate.
            :keyword dir: The directory where the certificate should be stored.
+           :keyword category: The category of certificate.
         """
         KickstartObject.__init__(self, *args, **kwargs)
         self.cert = kwargs.get("cert", None)
         self.filename = kwargs.get("filename", None)
         self.dir = kwargs.get("dir", None)
+        self.category = kwargs.get("category", None)
 
     def __str__(self):
         """Return a string formatted for output to a kickstart file."""
@@ -203,9 +205,12 @@ class Certificate(KickstartObject):
         retval += " --filename=%s" % self.filename
 
         if self.dir:
-            retval += " --dir=%s\n" % self.dir
+            retval += " --dir=%s" % self.dir
 
-        return retval + self.cert + "\n%end\n"
+        if self.category:
+            retval += " --category=%s" % self.category
+
+        return retval + "\n" + self.cert + "\n%end\n"
 
 
 ###

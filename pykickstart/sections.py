@@ -860,6 +860,7 @@ class CertificateSection(Section):
         self._certificate = {
             "filename": None,
             "dir": None,
+            "category": None,
             "cert": []
         }
 
@@ -890,6 +891,9 @@ class CertificateSection(Section):
         op.add_argument("--dir", dest="dir", default=None, version=F42, help="""
                         The directory where the certificate should be installed.""")
 
+        op.add_argument("--category", dest="category", default=None, version=F42, help="""
+                        The category of the certificate. Based on it appropriate import
+                        will be performed.""")
         return op
 
     def handleHeader(self, lineno, args):
@@ -904,6 +908,9 @@ class CertificateSection(Section):
 
         if ns.dir:
             self._certificate["dir"] = ns.dir
+
+        if ns.category:
+            self._certificate["category"] = ns.category
 
     def handleLine(self, line):
         """Collect lines between %certificate and %end."""
@@ -922,6 +929,7 @@ class CertificateSection(Section):
             "cert": cert,
             "filename": self._certificate["filename"],
             "dir": self._certificate["dir"],
+            "category": self._certificate["category"],
         }
 
         if self.dataObj is not None:
@@ -930,5 +938,6 @@ class CertificateSection(Section):
                 "cert": [],
                 "filename": None,
                 "dir": None,
+                "category": None,
             }
             self.handler.certificates.append(s)
